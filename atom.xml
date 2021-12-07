@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Hexo</title>
+  
+  
+  <link href="http://example.com/atom.xml" rel="self"/>
+  
+  <link href="http://example.com/"/>
+  <updated>2021-12-07T13:32:31.044Z</updated>
+  <id>http://example.com/</id>
+  
+  <author>
+    <name>John Doe</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>python request</title>
+    <link href="http://example.com/2021/12/07/python-request/"/>
+    <id>http://example.com/2021/12/07/python-request/</id>
+    <published>2021-12-07T13:28:39.000Z</published>
+    <updated>2021-12-07T13:32:31.044Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="start"><a href="#start" class="headerlink" title="start"></a>start</h2><p>在写模拟登录的时候需要用到python request模块，并且要抓包发包，只能说一无所知，甚至不知道url是什么。写一写给自己科普点网络常识，以方便听懂dalao们聊技术。</p><h3 id="所需要准备的包中的内容"><a href="#所需要准备的包中的内容" class="headerlink" title="所需要准备的包中的内容"></a>所需要准备的包中的内容</h3><p>url:意思是我们常称为的网址，例如：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url = <span class="string">&quot;https://baidu.com&quot;</span></span><br></pre></td></tr></table></figure><p>user-agent:指用户代理，可以通过查看抓包的内容来看自己的user-agent，例如：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Mozilla/<span class="number">5.0</span> (Linux; Android <span class="number">10</span>; Pixel <span class="number">2</span> Build/QQ3A<span class="number">.200805</span><span class="number">.001</span>; wv) AppleWebKit/<span class="number">537.36</span> (KHTML, like Gecko) Version/<span class="number">4.0</span> Chrome/<span class="number">74.0</span><span class="number">.3729</span><span class="number">.186</span> Mobile Safari/<span class="number">537.36</span></span><br></pre></td></tr></table></figure><p>这些是请求头中的内容，可能需要用到的还有很多，用到了在学，寄（摆烂</p><p>Accept、Accept-Charset、Accept- Encoding、Accept-Language、Authorization、From、Host、If-Modified-Since、If-Match、If-None-Match、If-Range、If-Range、If-Unmodified-Since、Max-Forwards、Proxy-Authorization、Range、Referer、User-Agent</p><p>这一大堆都可能会用到</p><p>因为这次需要实行的是模拟登录，所以发包包内需要的内容是一些登录相关的数据，在这里需要使用python字典来实现。例如：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">login = &#123;</span><br><span class="line">     <span class="string">&quot;userName&quot;</span>:<span class="string">&quot;12345678901&quot;</span>,</span><br><span class="line">     <span class="string">&quot;app_id&quot;</span>:<span class="string">&quot;7&quot;</span>,</span><br><span class="line">     <span class="string">&quot;password&quot;</span>:<span class="string">&quot;c3l5czc5OTc=\n&quot;</span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure><p>准备工作做足了的话就可以开始写请求了）</p><h3 id="request-请求"><a href="#request-请求" class="headerlink" title="request 请求"></a>request 请求</h3><p>一般需要请求都是带参数的请求，get和post其实差距不是很大，从网上查了资料大概是这样的：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo requests.get(url,params=&#123;<span class="string">&quot;key1&quot;</span>:<span class="string">&quot;value1&quot;</span>&#125;)</span><br><span class="line">       requests.post(url,data=&#123;<span class="string">&quot;key1&quot;</span>:<span class="string">&quot;value1&quot;</span>,<span class="string">&quot;key2&quot;</span>:<span class="string">&quot;value2&quot;</span>&#125;)</span><br><span class="line">       requests.post(url,json=&#123;<span class="string">&quot;key1&quot;</span>:<span class="string">&quot;value1&quot;</span>,<span class="string">&quot;key2&quot;</span>:<span class="string">&quot;value2&quot;</span>&#125;)</span><br></pre></td></tr></table></figure><p>如果写出来大概是这样，有请求头和respnse:(此处的body和my_header是定义的py字典)</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ hexo response = requests.post(url,params=body,headers=my_header)</span><br><span class="line">       <span class="built_in">print</span>(response.json)</span><br></pre></td></tr></table></figure><p>因为这里比较疑惑data和params有什么区别，通过资料了解到这是两种携带参数的方法。</p><p>简单来说，params是用来发送查询字符串，而data、json是用来发送正文的。<br>这两种参数post方法都可以用，get方法只能发查询字符串，不能发送正文。</p><p>params会将参数key、value拼接在url后；<br>json 表示使用application/json方式提交请求。接收方request.body的内容为’{“a”: 1, “b”: 2}’的这种形式；<br>data 表示使用application/form-urlencode方式提交请求，接收方request.body的内容为a=1&amp;b=2的这种形式。</p><h3 id="需要注意的"><a href="#需要注意的" class="headerlink" title="需要注意的"></a>需要注意的</h3><p>其实请求里使用python字典要包括的东西很多（大概），第一次写也没完全了解大概需要去放些什么东西在请求头和包里，就抓到啥放啥）</p><p>请求头里可能还需要time out，accept之类的，补充一点互联网上捞到的看看。</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">time_str = <span class="built_in">str</span>(<span class="built_in">int</span>(<span class="number">1000</span> * time.time()))</span><br><span class="line">key_dict = &#123;</span><br><span class="line">    <span class="string">&quot;source&quot;</span>: <span class="string">&quot;zh&quot;</span>,</span><br><span class="line">    <span class="string">&quot;target&quot;</span>: <span class="string">&quot;en&quot;</span>,</span><br><span class="line">    <span class="string">&quot;sourceText&quot;</span>: <span class="string">&quot;发送 POST 请求&quot;</span>,</span><br><span class="line">    <span class="string">&quot;sessionUuid &quot;</span>: <span class="string">&quot;translate_uuid&quot;</span> + time_str</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><h3 id="END"><a href="#END" class="headerlink" title="END"></a>END</h3><p>摆烂人要为了自己兢兢业业捏</p><p>今天听的是RISE</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Target = <span class="string">&#x27;have fun and rise&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(Target)</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;start&quot;&gt;&lt;a href=&quot;#start&quot; class=&quot;headerlink&quot; title=&quot;start&quot;&gt;&lt;/a&gt;start&lt;/h2&gt;&lt;p&gt;在写模拟登录的时候需要用到python request模块，并且要抓包发包，只能说一无所知，甚至不知道url是什么。</summary>
+      
+    
+    
+    
+    
+    <category term="first" scheme="http://example.com/tags/first/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://example.com/2021/12/07/hello-world/"/>
+    <id>http://example.com/2021/12/07/hello-world/</id>
+    <published>2021-12-07T13:11:04.121Z</published>
+    <updated>2021-12-07T13:11:04.121Z</updated>
+    
+    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt; for</summary>
+      
+    
+    
+    
+    
+  </entry>
+  
+</feed>
