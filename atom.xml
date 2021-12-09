@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-12-09T06:47:16.502Z</updated>
+  <updated>2021-12-09T18:33:15.343Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>《逆向工程核心原理》-1</title>
+    <link href="http://example.com/2021/12/10/%E3%80%8A%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E3%80%8B-1/"/>
+    <id>http://example.com/2021/12/10/%E3%80%8A%E9%80%86%E5%90%91%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E3%80%8B-1/</id>
+    <published>2021-12-09T17:24:15.000Z</published>
+    <updated>2021-12-09T18:33:15.343Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="starts"><a href="#starts" class="headerlink" title="starts"></a>starts</h2><p>《逆向工程核心原理》这本书是在todo list里最开头的，除了动手实践补充书上的知识也很重要，加班加点稍微写点笔记，让自己能看到些自己做了学了的东西吧。</p><h2 id="重要的"><a href="#重要的" class="headerlink" title="重要的"></a>重要的</h2><p>在开头书里写的是关于逆向工程。很重要的章节，告诉我要学什么，“嗯，先学这些概念吧，其他慢慢学”，不贪心，不急躁，希望自己也能体会到其中的乐趣，对生活和学习都热情以待吧。</p><p>前几章节主要讲了基本的调试程序和寄存器，但这些都是非常重要的部分，而我却一直记不住，写一些笔记来加深一下自己的印象。</p><h2 id="习惯"><a href="#习惯" class="headerlink" title="习惯"></a>习惯</h2><p>首先讲了调试一个简单的hello world的程序，但在调试中需要养成良好的习惯，使调试更加方便且看起来清楚。</p><p>1.学会添加注释和标签，书中示范的是od，但不论用什么调试软件，在需要的地方添加合适的注释都是需要养成的习惯。</p><p>2.在ida调试时需要对函数名称进行重命名，以方便自己的解读。进入函数看伪代码时可以通过快捷键来简化代码，或者根据分析重定义函数类型，这些在b站ida代码修复视频中有详细介绍。</p><p>暂时没有想到其他的，如果以后发现就补充上去。</p><h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>在书中介绍了四种调试hello world代码的方法，单步f8在代码量非常大的情况下是不可能使用的，一般来说我们会猜测并且设置断点，而在程序破解等实例中我们可以使用<strong>字符串检索法</strong>和<strong>API断点法</strong>来实现定位调用的函数。字符串检索在字符串被加密时也是不可行的，所以需要了解API的定义。</p><p>API是操作系统对用户应用程序提供的一系列函数，实现于xxx.dll文件。我们可以通过添加API断点来找出程序中调用函数的部分，从而找到关键代码。</p><h2 id="字节序"><a href="#字节序" class="headerlink" title="字节序"></a>字节序</h2><p>即大端序和小端序，BE与LE，分别采用正序和逆序的方式存储字节，大端序内存地址低位存储内存数据高位，内存地址高位位存储内存数据低位，而小端序则高存高，低存低，所以小端序是逆序输出，大端序为正序输出</p><h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><p>反复查看寄存器是调试中必不可少的部分，也是很吃耐心的一部分，通过了解不同寄存器的作用可以大大缩短调试的时间，更快的了解程序的运行过程和数据的变化。也是看汇编指令的基础。</p><p>以E开头的寄存器为32位，分别为EAX,EBX,ECX,EDX,ESI,EDI,EBP,ESP。是八个通用寄存器。</p><p>以S结尾的6个段寄存器分别为CS,DC,SS,ES,FS,GS，他们都是16位的。</p><p>还有EFLAGS(程序状态与控制寄存器)和EIP指令指针寄存器。（32位）</p><p>平常看的最多的是<strong>通用寄存器</strong>，用于传送和暂存数据。有些寄存器可以分为高低位的独立寄存器，例如EAX，有32位。AX是EAX的低16位，AH又是AX的高8位，AL是AX的低8位。在调试时可以根据需要使用的字节数来观察独立寄存器的变化。</p><p>EAX:累加器（数据）                            EBP:扩展基址指针寄存器（栈内数据指针）</p><p>EBX:基址寄存器（数据指针）              ECX:源变址寄存器（字符串操作源指针）</p><p>ECX:计数器（字符串和循环操作）       EDI:目的变址寄存器（字符串操作目标指针）</p><p>EDX:数据寄存器（I/O指针）                 ESP:栈指针寄存器（栈指针）</p><p>ESP与EBP相互协调作用，EBP暂存ESP的值，ESP为栈顶指针，最后得到的值返回ESP。</p><p><strong>段寄存器</strong>在这里没有详细的阐述，只是做了简单的介绍，等到后面了解了再记录。</p><p><strong>程序状态寄存器</strong>中我们常常会看到的指令大概时ZF，即运算结果为0则它的值为1，常用作判断指令，与cmp等指令连用，OF和CF都是溢出数据时返回1，OF为有符号数据，CF为无符号数据。</p><p><strong>指令指针寄存器</strong>最后的就是EIP，即为指令地址，在寄存器窗口点击EIP即可返回到当下执行的地方。</p><h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>其实看的内容比这些要多，这些都是基础但非常重要的知识，包括后面的栈和基础的汇编指令，但实在是太困了就先搁置下来，下次一起记录。</p><p>2021.12.10/02:25   晚安。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;starts&quot;&gt;&lt;a href=&quot;#starts&quot; class=&quot;headerlink&quot; title=&quot;starts&quot;&gt;&lt;/a&gt;starts&lt;/h2&gt;&lt;p&gt;《逆向工程核心原理》这本书是在todo list里最开头的，除了动手实践补充书上的知识也很重要，加班加点稍微</summary>
+      
+    
+    
+    
+    
+    <category term="读书笔记-1" scheme="http://example.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-1/"/>
+    
+  </entry>
   
   <entry>
     <title>python字节流与字符串与aes解密函数</title>
