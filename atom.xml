@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-12-07T13:32:31.044Z</updated>
+  <updated>2021-12-09T06:41:01.231Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>python字节流与字符串与aes解密函数</title>
+    <link href="http://example.com/2021/12/09/python%E5%AD%97%E8%8A%82%E6%B5%81%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2/"/>
+    <id>http://example.com/2021/12/09/python%E5%AD%97%E8%8A%82%E6%B5%81%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2/</id>
+    <published>2021-12-09T04:42:17.000Z</published>
+    <updated>2021-12-09T06:41:01.231Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="starts"><a href="#starts" class="headerlink" title="starts"></a>starts</h2><p>最近在开始做normal系列的题目，前面了解过一些以后大体还是能够理解题目的意思，但在写脚本上面出现了很多困难，（代码力很重要），不会写脚本然后看了wp，结果wp是py2写的，会报错，语法也有一些不太一样的，让本就py很寄的我雪上加霜。。</p><p>上面的都是废话，主要写一写python字节流和字符串还有aes十分简便的带类型的解密。</p><h2 id="字节流与字符串"><a href="#字节流与字符串" class="headerlink" title="字节流与字符串"></a>字节流与字符串</h2><p>在写脚本的时候遇到了hexstring与bytes的转换问题，于是根据指点去查了一下字节流与字符串的使用和区别。以下是资料：</p><p>Python 3最重要的新特性之一是对字符串和二进制数据流做了明确的区分。文本总是Unicode，由str类型表示，二进制数据则由bytes类型表示。Python 3不会以任意隐式的方式混用str和bytes，你不能拼接字符串和字节流，也无法在字节流里搜索字符串（反之亦然），也不能将字符串传入参数为字节流的函数（反之亦然）。</p><p>意思就是，不能够在字符串中拼接和存放bytes类型的数据，而字节流可以看作c语言中的数组，是不能与str混用的。</p><h2 id="encode与decode"><a href="#encode与decode" class="headerlink" title="encode与decode"></a>encode与decode</h2><p>那如果需要将str与bytes转换，那么就需要用到encode()（编码）和decode()（解码）两种方法，实际就是编码与解码。这也是python少数比c语言麻烦的地方。在解码编码同时需要指明编码解码类型。编码和解码类型不一致会导致出现乱码。</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">b = a.encode(<span class="string">&#x27;utf-8&#x27;</span>) <span class="comment">#用utf-8编码集将a字符串编码为字节数组</span></span><br><span class="line">b1 = b.decode(<span class="string">&#x27;utf-8&#x27;</span>) <span class="comment">#用utf-8编码集将变量b的字节数组解码成对应字符串</span></span><br></pre></td></tr></table></figure><p>如果不编码直接使用字符串来转换成bytes类型会报错。</p><p><img src="python%E5%AD%97%E8%8A%82%E6%B5%81%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2/1.jpg" alt="1"></p><p>也可以直接构造bytes类型数据</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">B = b&quot;abcd&quot;</span><br></pre></td></tr></table></figure><h2 id="二进制序列类型"><a href="#二进制序列类型" class="headerlink" title="二进制序列类型"></a>二进制序列类型</h2><p>bytes是不可变的二进制格式<strong>字节</strong>数据，而bytearray是可变的二进制数据，即可以对其进行操作来改变其中的数据。</p><p>在题目中遇到了hexstring转为bytes类型的问题，帮我改脚本的师傅用的是long_to_bytes，使用的模块是from Crypto.Util import number。当然byte_to_long也同样在模块里。（这个模块需要pip装）</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Util <span class="keyword">import</span> number</span><br><span class="line">a = long_to_bytes(<span class="number">0x934d8706bed74cd6eea683c7be86b2eb</span>)</span><br><span class="line"><span class="built_in">print</span>(a)</span><br><span class="line"><span class="comment">#结果为 b&#x27;\x93M\x87\x06\xbe\xd7L\xd6\xee\xa6\x83\xc7\xbe\x86\xb2\xeb&#x27;</span></span><br></pre></td></tr></table></figure><p>经过查资料，使用binascii.b2a_hex()也可以实现同样的效果：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line">a = binascii.a2b_hex(<span class="string">b&#x27;934d8706bed74cd6eea683c7be86b2eb&#x27;</span>)<span class="comment">#必须是bytes类型</span></span><br><span class="line"><span class="built_in">print</span>(a)</span><br><span class="line"><span class="comment">#结果为 b&#x27;\x93M\x87\x06\xbe\xd7L\xd6\xee\xa6\x83\xc7\xbe\x86\xb2\xeb&#x27;</span></span><br></pre></td></tr></table></figure><h2 id="AES解密函数（含aes类型）"><a href="#AES解密函数（含aes类型）" class="headerlink" title="AES解密函数（含aes类型）"></a>AES解密函数（含aes类型）</h2><p>在解决标准aes解密时，网上搜到的脚本大多数都是很多废话一大长串，实在是非常看不懂，（主要还是我菜），wp提供了一个非常简单且带有aes加密类型的解密（太好了！）于是我去了解了一下这个解密函数的用法</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line">aes = AES.new(key, AES.MODE_ECB) <span class="comment">#key为密钥</span></span><br><span class="line">flag = aes.decrypt(data) <span class="comment">#data是需要解密的内容</span></span><br></pre></td></tr></table></figure><p>这里的aes = AES.new(key, AES.MODE_ECB)中的ECB换成其他的类型也是成立的（<strong>CBC、ECB、CTR、OCF、CFB</strong>）</p><h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>弱类型我**&amp;%￥%￥……￥#……，但是还要学……</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;starts&quot;&gt;&lt;a href=&quot;#starts&quot; class=&quot;headerlink&quot; title=&quot;starts&quot;&gt;&lt;/a&gt;starts&lt;/h2&gt;&lt;p&gt;最近在开始做normal系列的题目，前面了解过一些以后大体还是能够理解题目的意思，但在写脚本上面出现了很多困</summary>
+      
+    
+    
+    
+    
+    <category term="0-1のpython" scheme="http://example.com/tags/0-1%E3%81%AEpython/"/>
+    
+  </entry>
   
   <entry>
     <title>python request</title>
