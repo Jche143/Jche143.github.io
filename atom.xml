@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-12-09T18:36:28.569Z</updated>
+  <updated>2021-12-10T14:54:56.684Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>induction-1</title>
+    <link href="http://example.com/2021/12/10/induction-1/"/>
+    <id>http://example.com/2021/12/10/induction-1/</id>
+    <published>2021-12-10T14:07:38.000Z</published>
+    <updated>2021-12-10T14:54:56.684Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="starts"><a href="#starts" class="headerlink" title="starts"></a>starts</h2><p>在写normal3和4的时候感受到自己看题太不仔细了，normal3在最后调试答案的时候加了头和尾，一直显示flag错误，想了一想才知道这个是因为没有看清最后题目的输出。还是要把每道题都理解透彻自己反复思考去看怎么做，哪里自己没有注意到，好好去归纳总结一下。</p><h2 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h2><p>在normal3的时候遇到了递归算法，其实一开始想的是一个replace，感觉像是给flag的值用一个str的下标来替换，调试的时候一直在很混乱的循环，也没有想到递归这层，还是平常的基础知识运用的不够熟悉，遇到这些常见的算法都反应不过来。其实按照题目的意思是一个递归的排序。</p><p>递归算法简单来说就是一种调用自身函数的算法，递归必须有明确的结束条件，不然就是无止境的循环消耗电脑内存，可以说是利弊共存。</p><p>就题目里来说递归就是这样：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">data = 0</span><br><span class="line">arr = []</span><br><span class="line">arr1 = []</span><br><span class="line"></span><br><span class="line">def fun(a):</span><br><span class="line">    global data</span><br><span class="line">    global arr</span><br><span class="line">    global arr1</span><br><span class="line">    if(a &lt; 64):</span><br><span class="line">        arr.append(data)</span><br><span class="line">        arr1.append(a)</span><br><span class="line">        data = data + 1</span><br><span class="line">        fun(2*a + 1)</span><br><span class="line">        fun(2*(a + 1))</span><br></pre></td></tr></table></figure><p>调用自身来进行运算</p><h2 id="hex与bytes"><a href="#hex与bytes" class="headerlink" title="hex与bytes"></a>hex与bytes</h2><p>又到了这个话题，上次写过一个hexstring和bytes的转化，写了很久，在normal4里面又碰到了这个问题。</p><img src="/2021/12/10/induction-1/1.png" class="" width="1"><img src="/2021/12/10/induction-1/2.png" class="" width="2"><p>在汇编窗口里你会发现这样的东西。<strong>byte ptr</strong>。这道题我没有调试，我直接照着伪代码逆了，结果错了，也没有想明白到底是为什么list会越界，也没有仔细去看汇编。从头再分析过来发现伪代码里的变量是被拆分了的，因为这里是把hex的字符串转成byte，然后以每两位写入。</p><img src="/2021/12/10/induction-1/3.png" class="" width="3"><p>有时候会遇到变量很多很难看，这时候就要反应过来看汇编和调试汇编了（我就没这么做就寄了），因为多个变量很有可能是组成一个地址的值或者字符，从而来replace这样，直接逆搞了好久也没有逆出东西来，一直在提示我越界。这道题其实就是一个replace，str2的下标是flag[i]的值的ascii码，只要索引str[i] ^ 0x19在str2里下标就可以了。</p><p>网上搜了一下是2018年湖湘杯的一道题，我看了爆破的脚本严重怀疑越界的可能性但应该别人出的脚本没有问题，等到有空考证了就补充上去。</p><h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>多归纳，，，不然会忘掉，，，</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;starts&quot;&gt;&lt;a href=&quot;#starts&quot; class=&quot;headerlink&quot; title=&quot;starts&quot;&gt;&lt;/a&gt;starts&lt;/h2&gt;&lt;p&gt;在写normal3和4的时候感受到自己看题太不仔细了，normal3在最后调试答案的时候加了头和尾，一直显示</summary>
+      
+    
+    
+    
+    
+    <category term="归纳" scheme="http://example.com/tags/%E5%BD%92%E7%BA%B3/"/>
+    
+  </entry>
   
   <entry>
     <title>《逆向工程核心原理》-1</title>
@@ -79,26 +101,6 @@
     
     
     <category term="first" scheme="http://example.com/tags/first/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="http://example.com/2021/12/07/hello-world/"/>
-    <id>http://example.com/2021/12/07/hello-world/</id>
-    <published>2021-12-07T13:11:04.121Z</published>
-    <updated>2021-12-07T13:11:04.121Z</updated>
-    
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt; for</summary>
-      
-    
-    
-    
     
   </entry>
   
