@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="John Doe"><meta name="renderer" content="webkit"><meta name="copyright" content="John Doe"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>Jche143</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/favicon.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/shark.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">Jche</div><div class="profile-signature">qwqqqqqq</div><div class="friends"><div>FRIENDS</div><span><a href="//qjx321.github.io" target="_black">friendA</a></span><span><a href="//http://47.103.121.189/" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">n 3^07 !</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title"></h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2021-12-12</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="0-1のpython"> 0-1のpython</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h2 id="starts"><a href="#starts" class="headerlink" title="starts"></a>starts</h2><p>在做normal5的时候有遇到很多不会的地方，比如为什么要对数据按位与（0xff），补0扩展和符号位扩展有什么用，这些操作和数据的关联。其实类似于这个0xff在level7的时候已经遇到过一次，当时只知道是为了防止数据溢出，当我在对normal5最后flag的数据操作时发现ff的个数会影响最后得到的数据，且对数据的操作顺序改变会导致flag得到不是想要的数据。于是打算好好看一下这个问题。</p>
+<h2 id="amp"><a href="#amp" class="headerlink" title="&amp;"></a>&amp;</h2><p>&amp;上一个0xff的起因大概是用一个dword和byte进行了比较，提取数据的时候数据是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0xFFFFFFC4, 0x00000034, 0x00000022, 0xFFFFFFB1, 0xFFFFFFD3, 0x00000011, 0xFFFFFF97, 0x00000007, 0xFFFFFFDB, 0x00000037, 0xFFFFFFC4, 0x00000006, 0x0000001D, 0xFFFFFFFC, 0x0000005B, 0xFFFFFFED, 0xFFFFFF98, 0xFFFFFFDF, 0xFFFFFF94, 0xFFFFFFD8, 0xFFFFFFB3, 0xFFFFFF84, 0xFFFFFFCC, 0x00000008</span><br></pre></td></tr></table></figure>
+
+<p>询问了别人这个0xff是怎么回事，现在大概了解了一些，所谓的高位清零是什么意思。0xff转化为二进制数就是1111111，一共有8个bit，一个字节。&amp;0xff就是使这个数字的低8bit不变，其他的全部清零，因为&amp;的意思就是1&amp;1为1，其他都是0。这样将这个数字&amp;0xff就使低8bit这个byte是1就是1，是0就是0，把高位全部清零，从而可以限制到一个字节的大小。这样一来就可以进行比较了。</p>
+<h2 id="movsx-movzx"><a href="#movsx-movzx" class="headerlink" title="movsx  /  movzx"></a>movsx  /  movzx</h2><p>MOVZX 指令（进行全零扩展并传送）将源操作数复制到目的操作数，并把目的操作数 0 扩展到 16 位或 32 位。这条指令只用于无符号整数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mov bx, 0A69Bh</span><br><span class="line">movzx eax, bx     ;EAX = 0000A69Bh</span><br><span class="line">movzx edx, bl     ;EDX = 0000009Bh</span><br><span class="line">movzx cx, bl     ;CX = 009Bh</span><br></pre></td></tr></table></figure>
+
+<p>MOVSX 指令（进行符号扩展并传送）将源操作数内容复制到目的操作数，并把目的操作数符号扩展到 16 位或 32 位。这条指令只用于有符号整数。（符号位就是0或者1）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.data</span><br><span class="line">byteVal BYTE 10001111b</span><br><span class="line">.code</span><br><span class="line">movsx ax,byteVal      ;AX = 1111111110001111b</span><br></pre></td></tr></table></figure>
+
+<p>看了别人对normal5的分析，这里对符号位进行扩展的原因是flag里面有负数。输出字符如果是负数那么就没办法转字符了。</p>
+<p>去找了一下可以理解符号位扩展的文章，这个例子就比较容易理解：</p>
+<p>以-64为例，其8位的二进制补码（1100 0000）表示成十六进制是0xC0，而等效的16位二进制补码（1111 1111 1100 0000）表示成十六进制是0xFFC0，很显然，位模式不一样。再看数+64，其8位二进制补码（0100 0000）和16位二进制补码（0000 0000 0100 0000）表示，分别是0x40与0x0040。事实是，扩展负数的大小与扩展非负数的大小是完全不同的。</p>
+<p>处理不同长度的有符号数时，我们必须使用符号扩展。例如，将一个字节量与一个字量相加时，在相加之前，必须将字节量符号扩展到16位，其他运算可能需要符号扩展到32位。</p>
+<p>清零和符号位扩展大多用于比较两个长度不同的数据。</p>
+<h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>寄。</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">John Doe</a></p><p> <span>Link:  </span><a href="http://example.com/2021/12/12/movzx-movsz/">http://example.com/2021/12/12/movzx-movsz/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2021/12/10/induction-1/" title="induction-1"><span>NextPost ></span><br><span class="nextTitle">induction-1</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#starts"><span class="toc-number">1.</span> <span class="toc-text">starts</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#amp"><span class="toc-number">2.</span> <span class="toc-text">&amp;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#movsx-movzx"><span class="toc-number">3.</span> <span class="toc-text">movsx  &#x2F;  movzx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#END"><span class="toc-number">4.</span> <span class="toc-text">END</span></a></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
