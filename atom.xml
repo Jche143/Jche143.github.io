@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-12-12T10:47:49.247Z</updated>
+  <updated>2021-12-12T14:15:32.632Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title></title>
+    <title>符号位扩展</title>
     <link href="http://example.com/2021/12/12/movzx-movsz/"/>
     <id>http://example.com/2021/12/12/movzx-movsz/</id>
     <published>2021-12-12T07:24:34.000Z</published>
-    <updated>2021-12-12T10:47:49.247Z</updated>
+    <updated>2021-12-12T14:15:32.632Z</updated>
     
     <content type="html"><![CDATA[<h2 id="starts"><a href="#starts" class="headerlink" title="starts"></a>starts</h2><p>在做normal5的时候有遇到很多不会的地方，比如为什么要对数据按位与（0xff），补0扩展和符号位扩展有什么用，这些操作和数据的关联。其实类似于这个0xff在level7的时候已经遇到过一次，当时只知道是为了防止数据溢出，当我在对normal5最后flag的数据操作时发现ff的个数会影响最后得到的数据，且对数据的操作顺序改变会导致flag得到不是想要的数据。于是打算好好看一下这个问题。</p><h2 id="amp"><a href="#amp" class="headerlink" title="&amp;"></a>&amp;</h2><p>&amp;上一个0xff的起因大概是用一个dword和byte进行了比较，提取数据的时候数据是这样的：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0xFFFFFFC4, 0x00000034, 0x00000022, 0xFFFFFFB1, 0xFFFFFFD3, 0x00000011, 0xFFFFFF97, 0x00000007, 0xFFFFFFDB, 0x00000037, 0xFFFFFFC4, 0x00000006, 0x0000001D, 0xFFFFFFFC, 0x0000005B, 0xFFFFFFED, 0xFFFFFF98, 0xFFFFFFDF, 0xFFFFFF94, 0xFFFFFFD8, 0xFFFFFFB3, 0xFFFFFF84, 0xFFFFFFCC, 0x00000008</span><br></pre></td></tr></table></figure><p>询问了别人这个0xff是怎么回事，现在大概了解了一些，所谓的高位清零是什么意思。0xff转化为二进制数就是1111111，一共有8个bit，一个字节。&amp;0xff就是使这个数字的低8bit不变，其他的全部清零，因为&amp;的意思就是1&amp;1为1，其他都是0。这样将这个数字&amp;0xff就使低8bit这个byte是1就是1，是0就是0，把高位全部清零，从而可以限制到一个字节的大小。这样一来就可以进行比较了。</p><h2 id="movsx-movzx"><a href="#movsx-movzx" class="headerlink" title="movsx  /  movzx"></a>movsx  /  movzx</h2><p>MOVZX 指令（进行全零扩展并传送）将源操作数复制到目的操作数，并把目的操作数 0 扩展到 16 位或 32 位。这条指令只用于无符号整数。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mov bx, 0A69Bh</span><br><span class="line">movzx eax, bx     ;EAX = 0000A69Bh</span><br><span class="line">movzx edx, bl     ;EDX = 0000009Bh</span><br><span class="line">movzx cx, bl     ;CX = 009Bh</span><br></pre></td></tr></table></figure><p>MOVSX 指令（进行符号扩展并传送）将源操作数内容复制到目的操作数，并把目的操作数符号扩展到 16 位或 32 位。这条指令只用于有符号整数。（符号位就是0或者1）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.data</span><br><span class="line">byteVal BYTE 10001111b</span><br><span class="line">.code</span><br><span class="line">movsx ax,byteVal      ;AX = 1111111110001111b</span><br></pre></td></tr></table></figure><p>看了别人对normal5的分析，这里对符号位进行扩展的原因是flag里面有负数。输出字符如果是负数那么就没办法转字符了。</p><p>去找了一下可以理解符号位扩展的文章，这个例子就比较容易理解：</p><p>以-64为例，其8位的二进制补码（1100 0000）表示成十六进制是0xC0，而等效的16位二进制补码（1111 1111 1100 0000）表示成十六进制是0xFFC0，很显然，位模式不一样。再看数+64，其8位二进制补码（0100 0000）和16位二进制补码（0000 0000 0100 0000）表示，分别是0x40与0x0040。事实是，扩展负数的大小与扩展非负数的大小是完全不同的。</p><p>处理不同长度的有符号数时，我们必须使用符号扩展。例如，将一个字节量与一个字量相加时，在相加之前，必须将字节量符号扩展到16位，其他运算可能需要符号扩展到32位。</p><p>清零和符号位扩展大多用于比较两个长度不同的数据。</p><h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>寄。</p>]]></content>
     
