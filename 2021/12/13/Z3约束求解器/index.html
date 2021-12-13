@@ -1,0 +1,142 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="John Doe"><meta name="renderer" content="webkit"><meta name="copyright" content="John Doe"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>Z3约束求解器 · Jche143</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/favicon.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/shark.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">Jche</div><div class="profile-signature">qwqqqqqq</div><div class="friends"><div>FRIENDS</div><span><a href="//qjx321.github.io" target="_black">friendA</a></span><span><a href="//47.103.121.189" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">n 3^07 !</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">Z3约束求解器</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2021-12-13</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="0-1のpython"> 0-1のpython</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h2 id="starts"><a href="#starts" class="headerlink" title="starts"></a>starts</h2><p>一直不会用z3，但是爆破里面经常会需要z3来一把梭，主要是在类型转换时里面经常有个a开头的类型搞我，给我整寄了。直到现在从normal题再一次做起又碰到z3的时候想起来还是需要学习一下，这次找到了一篇比较详细的讲解。</p>
+<h2 id="Z3约束求解器"><a href="#Z3约束求解器" class="headerlink" title="Z3约束求解器"></a>Z3约束求解器</h2><p>安装z3模块</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install z3-solver</span><br></pre></td></tr></table></figure>
+
+<p>在使用z3时，开头需要这样一行</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> *</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置变量"><a href="#设置变量" class="headerlink" title="设置变量"></a>设置变量</h2><p>一般来使用z3大多数都会有位运算，所以一般就不用管Real（实数）和Int（整数），直接把变量设置成向量型就可以。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 声明单个 16 位的变量</span></span><br><span class="line">x = BitVec(<span class="string">&#x27;x&#x27;</span>,<span class="number">16</span>)</span><br><span class="line"><span class="comment"># 声明多个 16 位的变量</span></span><br><span class="line">y,z = BitVecs(<span class="string">&#x27;y z&#x27;</span>,<span class="number">16</span>)</span><br></pre></td></tr></table></figure>
+
+<p>然后我们在z3里一般都会使用很多变量，需要快速添加变量。</p>
+<p>添加 50 个 16 位 BitVec 变量 s ：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s=[BitVec (<span class="string">&#x27;s%d&#x27;</span> % i,<span class="number">16</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">50</span>)] <span class="comment">#声明一个列表，数据类型是向量，向量的大小是16位</span></span><br><span class="line">flag = [BitVec(<span class="string">&#x27;%d&#x27;</span> % i, <span class="number">8</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">36</span>)] <span class="comment">#声名一个列表，数据类型是向量，大小是8位</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="创建约束求解器"><a href="#创建约束求解器" class="headerlink" title="创建约束求解器"></a>创建约束求解器</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s = Solver()</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加约束条件"><a href="#添加约束条件" class="headerlink" title="添加约束条件"></a>添加约束条件</h2><p>以行为单位添加方程等式样子的约束条件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">s.add(x**<span class="number">2</span>+y**<span class="number">2</span>==<span class="number">74</span>)</span><br><span class="line">s.add(x**<span class="number">5</span>-y==z)</span><br><span class="line"><span class="comment"># [y = -7, x = 5, z = 3132]</span></span><br></pre></td></tr></table></figure>
+
+<p>这里注意，z3不允许列表与列表之间添加==约束条件，会报错。</p>
+<h2 id="判断是否有解"><a href="#判断是否有解" class="headerlink" title="判断是否有解"></a>判断是否有解</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> s.check() == sat:  <span class="comment">#检查是否有解</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;solver&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;no solver&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="求解并输出"><a href="#求解并输出" class="headerlink" title="求解并输出"></a>求解并输出</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ans = s.model() <span class="comment">#求解</span></span><br><span class="line"><span class="built_in">print</span>(ans)</span><br></pre></td></tr></table></figure>
+
+<h2 id="TIP"><a href="#TIP" class="headerlink" title="TIP"></a>TIP</h2><p>一般来说经常会使用z3来爆破，求解flag时需要将变量约束在可见字符的ascii码之内</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s.add(x &lt; <span class="number">127</span>)</span><br><span class="line">s.add(x &gt;= <span class="number">32</span>)</span><br></pre></td></tr></table></figure>
+
+<p>在约束条件时最好使用下标索引，用列表来管理（可以使输出是有序的）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s.add(s[<span class="number">18</span>] * s[<span class="number">8</span>] == <span class="number">5</span>)</span><br><span class="line">s.add(s[<span class="number">4</span>] * s[<span class="number">11</span>] == <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<p>求解打印结果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">answer=s.model() <span class="comment">#求解</span></span><br><span class="line"><span class="comment">#print(answer)</span></span><br><span class="line">result=<span class="string">&quot;&quot;</span>.join([<span class="built_in">str</span>(answer[i]) <span class="keyword">for</span> i <span class="keyword">in</span> s]) <span class="comment">#连接</span></span><br><span class="line"><span class="built_in">print</span>(result)</span><br></pre></td></tr></table></figure>
+
+<h2 id="z3-ArithRef"><a href="#z3-ArithRef" class="headerlink" title="z3.ArithRef"></a>z3.ArithRef</h2><p>这个arithref，应该一开始使用z3的都会收到一个类型转换的报错。这是一个z3的特有变量类型，即使求解成功，也不能直接将这个类型的变量输出，在这里我们需要将变量进行类型转换才能成功的输出我们想要的数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">m = s.model()</span><br><span class="line"><span class="comment"># 输出为int类型</span></span><br><span class="line">a_int = m[a].as_long()</span><br><span class="line"><span class="comment"># 输出为fraction类型</span></span><br><span class="line">d_float = m[d].as_fraction()</span><br></pre></td></tr></table></figure>
+
+<p>fraction类型的数据可以直接转换成float类型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">float</span>(d_float)</span><br><span class="line">Out[<span class="number">31</span>]: <span class="number">3.0</span></span><br></pre></td></tr></table></figure>
+
+<p>一般来说不会整那些精度活，如果输出无理数那也没法转化成chr类型了，如果有那种报错在题里一般都是自己写错了，检查一下思路和数据。</p>
+<h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>希望下次能自己写个出数据且不报错的z3（双手合十</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">John Doe</a></p><p> <span>Link:  </span><a href="http://example.com/2021/12/13/Z3%E7%BA%A6%E6%9D%9F%E6%B1%82%E8%A7%A3%E5%99%A8/">http://example.com/2021/12/13/Z3%E7%BA%A6%E6%9D%9F%E6%B1%82%E8%A7%A3%E5%99%A8/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2021/12/12/movzx-movsz/" title="符号位扩展"><span>NextPost ></span><br><span class="nextTitle">符号位扩展</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#starts"><span class="toc-number">1.</span> <span class="toc-text">starts</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Z3%E7%BA%A6%E6%9D%9F%E6%B1%82%E8%A7%A3%E5%99%A8"><span class="toc-number">2.</span> <span class="toc-text">Z3约束求解器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E5%8F%98%E9%87%8F"><span class="toc-number">3.</span> <span class="toc-text">设置变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%BA%A6%E6%9D%9F%E6%B1%82%E8%A7%A3%E5%99%A8"><span class="toc-number">4.</span> <span class="toc-text">创建约束求解器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%BA%A6%E6%9D%9F%E6%9D%A1%E4%BB%B6"><span class="toc-number">5.</span> <span class="toc-text">添加约束条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E6%9C%89%E8%A7%A3"><span class="toc-number">6.</span> <span class="toc-text">判断是否有解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B1%82%E8%A7%A3%E5%B9%B6%E8%BE%93%E5%87%BA"><span class="toc-number">7.</span> <span class="toc-text">求解并输出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TIP"><span class="toc-number">8.</span> <span class="toc-text">TIP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#z3-ArithRef"><span class="toc-number">9.</span> <span class="toc-text">z3.ArithRef</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#END"><span class="toc-number">10.</span> <span class="toc-text">END</span></a></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
