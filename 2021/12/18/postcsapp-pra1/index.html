@@ -1,0 +1,111 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="John Doe"><meta name="renderer" content="webkit"><meta name="copyright" content="John Doe"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>csapp-pra1 · Jche143</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/favicon.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/shark.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">Jche</div><div class="profile-signature">qwqqqqqq</div><div class="friends"><div>FRIENDS</div><span><a href="//qjx321.github.io" target="_black">friendA</a></span><span><a href="//47.103.121.189" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">n 3^07 !</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">csapp-pra1</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2021-12-18</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="csapp"> csapp</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h2 id="Starts"><a href="#Starts" class="headerlink" title="Starts"></a>Starts</h2><p>断断续续总算把csapp的第一章看完了，算是非常基础的介绍部分，介绍了很多计算机硬件的知识和常识，以及后面章节会涉及到的一些学习的内容。</p>
+<h3 id="编译系统"><a href="#编译系统" class="headerlink" title="编译系统"></a>编译系统</h3><p>说实话，了解原理还算比较有趣的，从helloworld程序讲起。从源文件到编译成可执行目标文件需要经过四个阶段，分别由预处理器，编译器，汇编器，链接器，他们构成了编译系统。而我们需要去了解编译系统是如何工作的，这样才能够实现优化程序性能，理解链接时出现的错误，避免安全漏洞。里面会用到汇编，链接和算法的知识，在我们写程序时常常会有运行复杂和安全性的区别，了解编译系统是至关重要的。</p>
+<h3 id="处理器读取解释指令"><a href="#处理器读取解释指令" class="headerlink" title="处理器读取解释指令"></a>处理器读取解释指令</h3><p>当编译结束后系统硬件需要工作来执行可执行文件。硬件组成由总线，I/O设备，主存，处理器。而执行在硬件里数据需要加载到主存，处理器执行机器语言指令，通过总线达到寄存器再存放到内存中。而运行中需要速度，所以引入了高速缓存的概念，采用高速缓存存储器L1L2L3多级访问可以实现程序性能的显著提高，存储器层次结构呈金字塔型，高速缓存和寄存器大大提高了存储的效率。</p>
+<h3 id="操作系统（抽象）"><a href="#操作系统（抽象）" class="headerlink" title="操作系统（抽象）"></a>操作系统（抽象）</h3><p>操作系统管理硬件，防止硬件被失控的程序滥用，向应用程序提供简单已知的机制来控制复杂而又通常大不相同的低级硬件设备。</p>
+<p>其中抽象概念十分重要，通过抽象概念来实现操作系统的功能，也是我们经常会听到的进程，虚拟内存和文件，实际上，文件是对I/O设备的抽象表示，虚拟内存是对主存和I/O设备的抽象表示，进程则是对处理器、主存和I/O设备的抽象表示。</p>
+<p>在单处理器中实际上是在不断切换执行的进程。操作系统跟踪程序运行信息，而进程转换是由操作系统内核管理，例如读写程序需要执行sys call系统调用，给予内核控制权，结束后返回控制权，而实现进程需要硬件和软件的共同合作。</p>
+<p>实际上进程中有并发和并行的概念，而线程级并发和指令级并行，超线程和多核处理器的出现也是提高系统性能的一大部分。线程即为控制流，多线程是现代提高程序运行程序的方式之一。虚拟内存是一种每个进程都在独占使用主存，被称为虚拟地址空间，其中有只读的代码和数据，堆，栈，共享库，内核虚拟内存等等，地址从低到高增大。文件即为字节序列，作为读写的源。</p>
+<h3 id="other"><a href="#other" class="headerlink" title="other"></a>other</h3><p>后面还多花了一些篇幅谈了并发和并行，以及抽象的重要性，和Amdahl定律。</p>
+<h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>系统漫游简略带我领略了一下计算机世界和我们可以在哪里来实现对程序等等计算机中的部件的运行的优化，更好的实现一个程序以及很多的更好的实现。或许不断完善和探究原理不仅是对一个系统，一个程序，一个计算机的要求，也应该是对自己的要求吧。</p>
+<p>Waste It On Me.</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">John Doe</a></p><p> <span>Link:  </span><a href="http://example.com/2021/12/18/postcsapp-pra1/">http://example.com/2021/12/18/postcsapp-pra1/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2021/12/15/%E5%A4%9A%E4%B8%AAELF%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90%E5%A4%84%E7%90%86%E4%B8%8E%E8%87%AA%E8%A7%A3%E5%AF%86IDApython%E4%BD%BF%E7%94%A8/" title="多个ELF文件分析处理与自解密IDApython使用"><span>NextPost ></span><br><span class="nextTitle">多个ELF文件分析处理与自解密IDApython使用</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Starts"><span class="toc-number">1.</span> <span class="toc-text">Starts</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.1.</span> <span class="toc-text">编译系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E5%99%A8%E8%AF%BB%E5%8F%96%E8%A7%A3%E9%87%8A%E6%8C%87%E4%BB%A4"><span class="toc-number">1.2.</span> <span class="toc-text">处理器读取解释指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%88%E6%8A%BD%E8%B1%A1%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">操作系统（抽象）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#other"><span class="toc-number">1.4.</span> <span class="toc-text">other</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#END"><span class="toc-number">2.</span> <span class="toc-text">END</span></a></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
