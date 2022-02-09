@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="John Doe"><meta name="renderer" content="webkit"><meta name="copyright" content="John Doe"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>C++ Reserve 阅读 · Jche143</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/favicon.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/shark.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">Jche</div><div class="profile-signature">qwqqqqqq</div><div class="friends"><div>FRIENDS</div><span><a href="//qjx321.github.io" target="_black">friendA</a></span><span><a href="47.103.121.189" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">n 3^07 !</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">C++ Reserve 阅读</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2022-02-09</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="-----"> -----</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是一个关于c++逆向的阅读材料，我大致做一些笔记，因为是全英文所以基本是翻译）</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>c++中主要是类，在我们理解c++时，对于c++目标的主要部分(类)以及这些部分如何联系在一起(类关系)有一个宏观的概念。</p>
+<p>为了实现这种理解，我们必须能够：</p>
+<p>(1)识别类</p>
+<p>(2)识别类之间的关系</p>
+<p>(3)识别类成员。</p>
+<p>而人工分析检索c++类信息方法和自动化是这篇文章要讨论的内容。</p>
+<h2 id="手动分析c-二进制文件"><a href="#手动分析c-二进制文件" class="headerlink" title="手动分析c++二进制文件"></a>手动分析c++二进制文件</h2><p>本节介绍分析c++二进制文件的手动方法;它特别侧重于识别/提取c++类及其对应成员(变量、函数、构造函数/析构函数)和关系。请注意</p>
+<p>首先，我们需要识别这是否是一个c++文件，或者运用了c++的类，下面几种可以判断：</p>
+<p>1)大量使用ecx(这个ptr)。可能首先看到的事情之一是大量使用ecx(用作this指针)。可能看到的一个地方是，在函数即将被调用之前被赋值。另一种情况是，如果一个函数使用了ecx而没有首先初始化它，这意味着它可能是一个类成员函数。</p>
+.jpg)
+
+.jpg)
+
+<p>2）调用约定。与(1)相关的是，类成员函数调用时使用堆栈中常用的函数参数，并指向类的对象(即thispointer.)。下面是一个类实例化的例子，在这个例子中，分配的类对象(eax)最终将被传递给ecx，然后调用构造函数</p>
+.jpg)
+
+<p>此外，我们将注意到更可能是虚函数的间接函数调用;当然，如果不首先知道实际的类或在调试器下运行代码，就很难跟踪这些调用的去向。在这种情况下，我们必须首先知道ClassA的虚函数表(vftable)的位置，然后根据虚函数表中列出的函数列表确定函数的实际地址。</p>
+<img src="/2022/02/09/C-Reserve/4.jpg" class="" width="4">
+
+<p>3）STL代码和导入的dll。判断一个样本是否为c++二进制文件的另一种方法是，目标是否使用STL代码，这可以通过导入函数或库签名识别(如IDA的FLIRT)来判断.</p>
+<img src="/2022/02/09/C-Reserve/5.jpg" class="" width="5">
+
+<h3 id="类布局"><a href="#类布局" class="headerlink" title="类布局"></a>类布局</h3><p>我们还应该熟悉类在内存中的布局方式。让我们从一个非常简单的类开始。</p>
+<img src="/2022/02/09/C-Reserve/6.jpg" class="" width="6">
+
+<p>这个类的布局如图所示</p>
+<img src="/2022/02/09/C-Reserve/7.jpg" class="" width="7">
+
+<p>为了保持4字节的边界上的对齐，填充被添加到最后一个成员变量。在Visual c++中，成员变量在内存中的位置与声明的顺序相同。</p>
+<p>当类中包含虚函数：</p>
+<img src="/2022/02/09/C-Reserve/8.jpg" class="" width="8">
+
+<p>内存布局将变成这样：</p>
+<img src="/2022/02/09/C-Reserve/9.jpg" class="" width="9">
+
+<p>注意，在布局的开头添加了一个指向虚函数表的指针。该表按照虚函数声明的顺序包含虚函数的地址。类Ex2的虚函数表如下所示：</p>
+<img src="/2022/02/09/C-Reserve/10.jpg" class="" width="10">
+
+<p>如果一个类继承另一个类呢?以下是一个类从单个类继承时的情况，即单个继承：</p>
+<img src="/2022/02/09/C-Reserve/11-16444044998161.jpg" class="" width="11">
+
+<p>布局是这样的</p>
+<img src="/2022/02/09/C-Reserve/12.jpg" class="" width="12">
+
+<p>派生类的布局被简单地附加到基类的布局中。在多重继承的情况下，会发生以下情况：</p>
+<img src="/2022/02/09/C-Reserve/13.jpg" class="" width="13">
+
+<img src="/2022/02/09/C-Reserve/14.jpg" class="" width="14">
+
+<p>正如所看到的，每个基类的实例数据的副本将被嵌入到派生类的实例中，每个包含虚函数的基类将有自己的vftable。注意，第一个基类与当前对象共享一个vftable。当前对象的虚函数将被追加到第一个基类的虚函数列表的末尾。</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">John Doe</a></p><p> <span>Link:  </span><a href="http://example.com/2022/02/09/C-Reserve/">http://example.com/2022/02/09/C-Reserve/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2022/01/19/pwnstart/" title="pwn入门体验"><span>NextPost ></span><br><span class="nextTitle">pwn入门体验</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E5%88%86%E6%9E%90c-%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">手动分析c++二进制文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E5%B8%83%E5%B1%80"><span class="toc-number">3.1.</span> <span class="toc-text">类布局</span></a></li></ol></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
