@@ -1,0 +1,198 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="John Doe"><meta name="renderer" content="webkit"><meta name="copyright" content="John Doe"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>angr-理解符号执行 · Jche143</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/favicon.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/shark.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">Jche</div><div class="profile-signature">qwqqqqqq</div><div class="friends"><div>FRIENDS</div><span><a href="//qjx321.github.io" target="_black">friendA</a></span><span><a href="47.103.121.189" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">n 3^07 !</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">angr-理解符号执行</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2022-02-16</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="angr"> angr</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h1 id="理解符号执行-angr"><a href="#理解符号执行-angr" class="headerlink" title="理解符号执行-angr"></a>理解符号执行-angr</h1><p>符号类似于我们在计算未知数x的值，我们可以通过路径来求解未知数。通过判断条件来选择路径，当符号满足设定条件时即走了正确的路径。</p>
+<p>我们需要通过符号执行来达到一个目标，假设这个目标是走到success这一步。</p>
+<p>那么我们符号执行的步骤就相当明了了。</p>
+<p>第一步：找到符号。一般这里我们的未知数，即符号就是我们的input。</p>
+<p>第二步：找到路径（分支）。</p>
+<p>第三步：评估每条路径。</p>
+<p>由于路径和二进制文件的复杂度提升，我们给出了更好的选择来通过电脑来评估路径，于是就有了angr</p>
+<p>Angr是一个符号执行引擎。</p>
+<p>它可以:</p>
+<p>遍历二进制文件(并遵循任何分支)</p>
+<p>搜索符合给定条件的程序状态</p>
+<p>解给定路径(和其他)约束的符号变量</p>
+<p>在这里分为<strong>符号</strong>和<strong>执行路径</strong>两个板块</p>
+<p>首先讨论执行路径</p>
+<h2 id="1-执行路径"><a href="#1-执行路径" class="headerlink" title="1.执行路径"></a>1.执行路径</h2><p>Angr在一个模拟管理器对象中存储和处理一组给定程序的可能路径。</p>
+<p>模拟管理器提供了逐步执行程序以生成可能路径/状态的功能。</p>
+<p><strong>构建一系列路径</strong></p>
+<p>1.Angr在你指定的地方启动程序(这是第一个激活状态)</p>
+<p>2.在每个活动(非终止)状态下执行指令，直到到达分支点或状态终止</p>
+<p>3.在每个分支点上，将状态拆分为多个状态，并将它们添加到活动状态集</p>
+<p>4.重复步骤2 . .4，直到我们找到我们想要的，否则所有的州都会被终止</p>
+<p>我们可以对活动状态进行标记，以排除错误的路径。</p>
+<p>1.加载二进制</p>
+<p>2.指定起点并创建模拟管理器</p>
+<p>3.当我们还没有找到我们想要的……</p>
+<p>1）步进所有激活状态</p>
+<p>2）在每个活动状态上运行’ should_accept_state ‘谓词</p>
+<p>3）如果有人接受，我们就找到了我们想要的!退出循环</p>
+<p>4）在每个活动状态上运行’ should_avoid_state ‘谓词</p>
+<p>5）对于每个被接受的状态，将其标记为终止</p>
+<p>6）从活动状态集中移除所有标记为终止的状态</p>
+<p>这个算法angr写了一个单独的explore函数</p>
+<p>simulation.explore(find=should_accept_path, avoid=should_avoid_path)</p>
+<p>将添加任何被接受的路径到列表’ simulation.found ‘</p>
+<p>simulation.explore(find= 0 x80430a,avoid= 0x9aa442)</p>
+<p>将搜索地址0x80430a并终止任何到达0x9aa442的内容。</p>
+<h2 id="2-符号和约束的引入"><a href="#2-符号和约束的引入" class="headerlink" title="2.符号和约束的引入"></a>2.符号和约束的引入</h2><p>在某些情况下，当从stdin文件中查询用户输入时，Angr会自动注入符号。＊它使用的是SimProcedures，我们将在后面介绍。</p>
+<p>当Angr没有自动注入我们想要的符号时，我们可以手动这样做。</p>
+<p>Angr的符号是用位向量来表示的</p>
+<p>位向量有一个大小，即它们所代表的位数。</p>
+<p>与编程中的所有数据一样，位向量可以表示任何适合的类型。通常，它们表示n位整数或字符串。</p>
+<p>位向量和典型变量之间的区别是，典型变量存储单个值，而位向量存储满足一定约束条件的所有值。</p>
+<p>在简单的例子中，angr会自动将您的input作为符号注入，但在一些复杂的情况下需要手动输入</p>
+<p>下面是一些例子：</p>
+<p><strong>注入符号示例</strong></p>
+<p>1.寄存器</p>
+<p>对于简单的情况，Angr会代替它，这样用户输入函数就会将符号值注入寄存器。</p>
+<p>对于更复杂的情况，我们需要自己注入符号。在用户输入后启动程序，用符号值初始化寄存器。</p>
+<p>情形:get_user_input函数通过将值写入寄存器来返回值（把输入存在内存中，并把地址写到rax寄存器并返回）。（angr不支持写入多个参数于不同地址。）</p>
+<p>解决方案:不调用get_user_input，而是将符号值写入寄存器。</p>
+<p>在Angr中，你可以用一个具体的或符号的值写入寄存器:</p>
+<p>state.regs.eax = my_bitvector</p>
+<p>将my_bitvector的值写入eax。</p>
+<p>2.全局内存</p>
+<p>情形:get_user_input函数通过将值写入编译时确定的地址来返回值。</p>
+<p>解决方案:不调用get_user_input，而是将符号值写入地址。</p>
+<p>3.栈</p>
+<p>在Angr中，你可以用一个具体的或符号的值来推入堆栈:</p>
+<p>state.stack_push (my_bitvector)</p>
+<p>将my_bitvector的值推到堆栈的顶部。</p>
+<p>你可能需要考虑你不关心的任何东西在堆栈的开始通过添加填充:</p>
+<p>state.regs.esp - = 4</p>
+<p>增加4个字节的填充。</p>
+<p>4.动态内存</p>
+<p>分配在堆上的内存</p>
+<p>可以直接写入到指针覆盖原有指针</p>
+<p>如果你不能确定scanf写入的地址，因为它存储在一个指针中，你可以覆盖指针的值，指向你选择的一个未使用的位置(在这个例子中，0x4444444):</p>
+<p>state.memory.store(0xaf84dd8, 0x4444444) state.memory.store(0x4444444, my_bitvector)</p>
+<p>此时，0xaf84dd8的指针将指向0x4444444，它将存储您的位向量。</p>
+<p>5.文件系统</p>
+<p>可以当作内存处理，但地址和内存的地址不同，要注意</p>
+<p><strong>特殊情况</strong></p>
+<p>1.hooks</p>
+<p>如果想要跳一些地址，可以使用hook</p>
+<p>您可以使用hooks来完成此操作。你可以指定一个‘hook’的地址，你想要跳过的指令的字节数，以及一个将运行的Python函数来替换跳过的指令。</p>
+<p>注意:跳过的指令数可以为零。</p>
+<p>Call: binary.hook(0x8048776, length=16, replacement_check_all_Z)</p>
+<p>第一个是我们想要hook的地址，第二个是代表这些指令在内存中用16个字节表示（跳过的），第三个是代替运行这些指令的函数。</p>
+<p>Hook可以用于:</p>
+<p>在执行过程中注入符号值。</p>
+<p>取代复杂的功能。</p>
+<p>替换不支持的指令(例如，大多数系统调用)。</p>
+<p>函数回顾</p>
+<ol>
+<li>将参数推入堆栈</li>
+<li>将返回地址推到堆栈</li>
+<li>跳转到功能地址</li>
+<li>处理参数*</li>
+<li>执行函数</li>
+<li>将返回值写入适当的位置</li>
+<li>弹出返回地址并跳转到它</li>
+<li>弹出参数</li>
+</ol>
+<p><strong>simprocedures</strong></p>
+<p>SimProcedures被用来替换任何你完全理解并且不想测试bug的东西，或者Angr不支持的东西。</p>
+<p>因为问题的复杂性随着程序的长度呈指数级增长，任何满足上述条件的函数都应该用SimProcedure代替，以节省时间。</p>
+<p>目前，在Angr中包含了libc子集(快速扩展)的重新实现。</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">John Doe</a></p><p> <span>Link:  </span><a href="http://example.com/2022/02/16/angr-%E7%90%86%E8%A7%A3%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/">http://example.com/2022/02/16/angr-%E7%90%86%E8%A7%A3%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2022/02/09/C-Reserve/" title="C++ Reserve 阅读"><span>NextPost ></span><br><span class="nextTitle">C++ Reserve 阅读</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%90%86%E8%A7%A3%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C-angr"><span class="toc-number">1.</span> <span class="toc-text">理解符号执行-angr</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%89%A7%E8%A1%8C%E8%B7%AF%E5%BE%84"><span class="toc-number">1.1.</span> <span class="toc-text">1.执行路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%AC%A6%E5%8F%B7%E5%92%8C%E7%BA%A6%E6%9D%9F%E7%9A%84%E5%BC%95%E5%85%A5"><span class="toc-number">1.2.</span> <span class="toc-text">2.符号和约束的引入</span></a></li></ol></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
