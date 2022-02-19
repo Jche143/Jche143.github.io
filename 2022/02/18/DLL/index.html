@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="John Doe"><meta name="renderer" content="webkit"><meta name="copyright" content="John Doe"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>演练和使用自己的动态链接库C++ · Jche143</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/favicon.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/shark.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">Jche</div><div class="profile-signature">qwqqqqqq</div><div class="friends"><div>FRIENDS</div><span><a href="//qjx321.github.io" target="_black">friendA</a></span><span><a href="47.103.121.189" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">n 3^07 !</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">演练和使用自己的动态链接库C++</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2022-02-18</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="DLL"> DLL</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><p>原文链接<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-dynamic-link-library-cpp?view=msvc-170">https://docs.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-dynamic-link-library-cpp?view=msvc-170</a></p>
+<h1 id="演练和使用自己的动态链接库C"><a href="#演练和使用自己的动态链接库C" class="headerlink" title="演练和使用自己的动态链接库C++"></a>演练和使用自己的动态链接库C++</h1><p>1.在visual studio中创建DLL项目。</p>
+<p>2.将导出的函数和变量添加到该DLL。</p>
+<p>3.在Visual Studio 中创建一个控制台应用项目。</p>
+<p>4.在该控制台应用中使用从DLL导入的函数和变量。</p>
+<p>5.运行已完成的应用。</p>
+<p>本演练中两个方案，一个生成 DLL，另一个生成客户端应用。 DLL 使用 C 调用约定。 只要平台、调用约定和链接约定匹配，便可从采用其他编程语言编写的应用中进行调用。 客户端应用使用隐式链接 ，其中 Windows 在加载时将应用链接到 DLL。 此链接允许应用调用 DLL 提供的函数，就像调用静态链接库中的函数一样。</p>
+<h2 id="创建DLL项目"><a href="#创建DLL项目" class="headerlink" title="创建DLL项目"></a>创建DLL项目</h2><p>新建一个MathLibrary.dll项目，可以搜索dll来创建，我这里的版本是visual studio 2022</p>
+<img src="/2022/02/18/DLL/dll-2.png" class="" title="dll-2">
+
+<p>创建以后就可以在解决方案资源管理器中看到生成的项目和源文件了</p>
+<img src="/2022/02/18/DLL/dll-1.png" class="" title="dll-1">
+
+<p>接下来我们需要创建一个头文件来声明DLL导出的函数，然后将函数定义添加到DLL，使之具备功能。</p>
+<h3 id="1-将头文件添加到DLL"><a href="#1-将头文件添加到DLL" class="headerlink" title="1.将头文件添加到DLL"></a>1.将头文件添加到DLL</h3><p>1.在菜单栏中选择项目-添加新项</p>
+<p>2.左侧选择Visual C++。选择头文件(.h)。指定MathLibrary.h作为头文件的名称。生成文件。</p>
+<p>这里的实例是斐波那契递归</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> once</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> MATHLIBRARY_EXPORTS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MATHLIBRARY_API __declspec(dllexport)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MATHLIBRARY_API __declspec(dllimport)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//初始化一个序列</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">MATHLIBRARY_API <span class="keyword">void</span> <span class="title">fibonacci_init</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> a, <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> b)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//生成序列中下一个值</span></span><br><span class="line"><span class="comment">//成功返回true，并更新当前值和索引，溢出时为false，保持当前值和索引不变</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">MATHLIBRARY_API <span class="keyword">bool</span> <span class="title">fibonacci_next</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取系列中的当前值</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">MATHLIBRARY_API <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> <span class="title">fibonacci_current</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取当前值在序列中的位置</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">MATHLIBRARY_API <span class="keyword">unsigned</span> <span class="title">fibonacci_index</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>头文件中声明一些函数以生成通用的斐波那契序列，给定了两个初始值。</p>
+<h3 id="2-向DLL添加实现"><a href="#2-向DLL添加实现" class="headerlink" title="2.向DLL添加实现"></a>2.向DLL添加实现</h3><p>1.在解决方案资源管理器中右键点击源文件-添加-新项，创建名为MathLibrary.cpp的新.cpp文件。</p>
+<p>编辑该文件</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;pch.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;utility&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;limits.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;MathLibrary.h&quot;</span><span class="comment">//为dll定义导出的函数</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//dll内部状态变量</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> previous_; <span class="comment">//之前的值（如果有）</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> current_; <span class="comment">//当前序列值</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> index_; <span class="comment">//当前位置</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//初始化一个序列，这个函数必须在任何其他函数之前调用</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fibonacci_init</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> a,</span></span></span><br><span class="line"><span class="params"><span class="function">	<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	index_ = <span class="number">0</span>;</span><br><span class="line">	current_ = a;</span><br><span class="line">	previous_ = b; <span class="comment">//初始化特殊情况</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//生成序列中的下一个值，成功返回true，错误返回false</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">fibonacci_next</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//检查是否溢出结果或位置</span></span><br><span class="line">	<span class="keyword">if</span> ((ULLONG_MAX - previous_ &lt; current_) ||</span><br><span class="line">		(UINT_MAX == index_))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//特殊情况当序列位置为0，只要返回b的值</span></span><br><span class="line">	<span class="keyword">if</span> (index_ &gt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//否则，计算下一个序列值</span></span><br><span class="line">		previous_ += current_;</span><br><span class="line">	&#125;</span><br><span class="line">	std::<span class="built_in">swap</span>(current_, previous_);</span><br><span class="line">	++index_;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//得到序列中的当前值</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> <span class="title">fibonacci_current</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> current_;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//得到当前值在序列中的位置</span></span><br><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="title">fibonacci_index</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> index_;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到这里dll文件就编写完毕了，可以通过点击菜单栏中生成-生成解决方案来查看是否有错误。</p>
+<p>这样就成功使用visual studio创建了一个dll。</p>
+<h2 id="创建可使用DLL客户端应用"><a href="#创建可使用DLL客户端应用" class="headerlink" title="创建可使用DLL客户端应用"></a>创建可使用DLL客户端应用</h2><p>使用visual studio新建一个控制台应用，将项目名称设置为MathClient。（不需要选中将解决方案和项目放在同意目录中）</p>
+<p>在源代码中调用MathLibrary函数，项目中必须包括MathLibrary.h文件，将头文件复制到客户端应用项目中，然后将其作为现有项添加到项目中。</p>
+<p>在你的默认目录下去找到MathLibrary.h的文件和framework.h的文件复制到MathClient/MathClient的目录下，再去MathLibrary的x64/debug目录下去找到.dll文件和.lib文件，一个是动态链接库，一个是静态链接库，同样复制到MathClient/MathClient的目录下。</p>
+<p>完成上述以后，右击解决方案资源管理器中的MathClient，属性-常规-包含目录，添加MathClient/MathClient，这样就可以使用.dll库和头文件了。</p>
+<p>然后在MathClient.cpp文件中写入以下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Mathclient.cpp : 此文件包含 &quot;main&quot; 函数。程序执行将在此处开始并结束。</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;MathLibrary.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;pch.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">&quot;MathLibrary.lib&quot;</span>) <span class="comment">//需要加！！！！！(底下有不加的报错阐述)</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//初始化一个斐波那契数列</span></span><br><span class="line">	<span class="built_in">fibonacci_init</span>(<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">	<span class="comment">//写出序列值知道溢出</span></span><br><span class="line">	<span class="keyword">do</span> &#123;</span><br><span class="line">		std::cout &lt;&lt; <span class="built_in">fibonacci_index</span>() &lt;&lt; <span class="string">&quot;: &quot;</span></span><br><span class="line">			&lt;&lt; <span class="built_in">fibonacci_current</span>() &lt;&lt; std::endl;</span><br><span class="line">	&#125; <span class="keyword">while</span> (<span class="built_in">fibonacci_next</span>());</span><br><span class="line">	<span class="comment">//报告溢出前写入的值的计数</span></span><br><span class="line">	std::cout &lt;&lt; <span class="built_in">fibonacci_index</span>() &lt;&lt; <span class="string">&quot;: &quot;</span></span><br><span class="line">		&lt;&lt; <span class="built_in">fibonacci_index</span>() + <span class="number">1</span> &lt;&lt;</span><br><span class="line">		<span class="string">&quot; Fibonacci sequence values fit in an &quot;</span> &lt;&lt;</span><br><span class="line">		<span class="string">&quot;unsigned 64-bit integer.&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果头文件上的include没有下划报错什么的就是包含目录路径设置好了）</p>
+<h3 id="设置依赖和附加库目录"><a href="#设置依赖和附加库目录" class="headerlink" title="设置依赖和附加库目录"></a>设置依赖和附加库目录</h3><p>项目-属性-链接器，右侧框中有一个附加依赖项，输入MathLibrary.lib，添加依赖</p>
+<p>项目-属性-链接器-常规， 右侧框中附加库目录，定位到dll文件的库中。</p>
+<h2 id="报错提醒）"><a href="#报错提醒）" class="headerlink" title="报错提醒）"></a>报错提醒）</h2><p>折腾这个dll的链接其实还挺麻烦的，一开始怎么也弄不对，重新写了很多遍。最后卡在link2019的一个报错上。它提示我main函数中找不到__imp_xxxx（函数）。</p>
+<p>这里我先使用dumpbin工具查看dll导出符号，因为是cpp文件，所以有符号被修饰的可能性，导出符号的方法看<a target="_blank" rel="noopener" href="https://blog.csdn.net/zsc_976529378/article/details/105834611">https://blog.csdn.net/zsc_976529378/article/details/105834611</a></p>
+<p>因为我找到的dumpbin.exe不对劲，所以我是用第二种方法的，但找不到命令提示所以可以自己搭建一个。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">从菜单选择“Tools”，然后选择“外部工具”。输入如下：</span><br><span class="line"></span><br><span class="line">标题：Visual Studio 命令提示(&amp;C)</span><br><span class="line">命令：%systemroot%\system32\cmd.exe</span><br><span class="line">参数：/K &quot;vsdevcmd.bat -no_logo&quot;</span><br><span class="line">初始目录：D:\Program Files (x86)\Microsoft Visual Studio\2022\Community\Common7\Tools</span><br><span class="line">注意：初始化目录为你安装vs的目录中找</span><br><span class="line"></span><br><span class="line">然后点击【应用】，【确认】即可</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以在菜单-工具中找到命令提示了）</p>
+<p>查看dll导出符号没有被改，就转眼到了这个</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__imp_xxxx</span><br></pre></td></tr></table></figure>
+
+<p>是个什么东西，经过google后发现需要将lib文件添加到代码工程中</p>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/HideInTime/article/details/103181629">https://blog.csdn.net/HideInTime/article/details/103181629</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">出现字符_imp，说明不是真正的静态库，而是某个动态库的导入库，导入函数和自己不同名，所以加了字符_imp。比如说_imp_GetUserNameA就是GetUserNameA函数。</span><br><span class="line"></span><br><span class="line">会报这种错误的原因：</span><br><span class="line"></span><br><span class="line">1、说明注册表函数没有相关的lib库，我们需要在MSDN下搜索函数。</span><br><span class="line"></span><br><span class="line">2、如果有引入三方库文件，可能存在库编译时和自己的项目编译时的运行库选择不一致（MT/MTd/MD/MDd）。</span><br></pre></td></tr></table></figure>
+
+<p>于是在控制台文件main函数开头加入一行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">&quot;MathLibrary.lib&quot;</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>就可以成功运行了！</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">John Doe</a></p><p> <span>Link:  </span><a href="http://example.com/2022/02/18/DLL/">http://example.com/2022/02/18/DLL/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2022/02/16/csapp-8/" title="csapp-8"><span>NextPost ></span><br><span class="nextTitle">csapp-8</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BC%94%E7%BB%83%E5%92%8C%E4%BD%BF%E7%94%A8%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93C"><span class="toc-number">1.</span> <span class="toc-text">演练和使用自己的动态链接库C++</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BADLL%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.1.</span> <span class="toc-text">创建DLL项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%B0%86%E5%A4%B4%E6%96%87%E4%BB%B6%E6%B7%BB%E5%8A%A0%E5%88%B0DLL"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.将头文件添加到DLL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%90%91DLL%E6%B7%BB%E5%8A%A0%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.向DLL添加实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%8F%AF%E4%BD%BF%E7%94%A8DLL%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BA%94%E7%94%A8"><span class="toc-number">1.2.</span> <span class="toc-text">创建可使用DLL客户端应用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E4%BE%9D%E8%B5%96%E5%92%8C%E9%99%84%E5%8A%A0%E5%BA%93%E7%9B%AE%E5%BD%95"><span class="toc-number">1.2.1.</span> <span class="toc-text">设置依赖和附加库目录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%A5%E9%94%99%E6%8F%90%E9%86%92%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">报错提醒）</span></a></li></ol></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
