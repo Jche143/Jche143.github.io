@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="John Doe"><meta name="renderer" content="webkit"><meta name="copyright" content="John Doe"><meta name="keywords" content="Hexo"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>Unity3D + Frida + Hook · Jche143</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/favicon.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/shark.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">Jche</div><div class="profile-signature">qwqqqqqq</div><div class="friends"><div>FRIENDS</div><span><a href="//qjx321.github.io" target="_black">friendA</a></span><span><a href="47.103.121.189" target="_black">friendB</a></span><span><a href="//github.com/" target="_black">friendC</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">n 3^07 !</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">Unity3D + Frida + Hook</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2022-03-04</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="frida hook"> frida hook</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h1 id="Unity3D-Frida-Hook"><a href="#Unity3D-Frida-Hook" class="headerlink" title="Unity3D + Frida +Hook"></a>Unity3D + Frida +Hook</h1><p>首先，unity3d是一款游戏引擎，主要开发语言是c#</p>
+<p>unity3d编译后代码文件有两种运行模式：</p>
+<p>1.c#字节码模式，代码位于Assembly-CSharp.dll直接用dnspy反编译</p>
+<p>2.AOT预编译模式，<a target="_blank" rel="noopener" href="http://代码位于il2cpp.so/">代码位于il2cpp.so</a></p>
+<p>这里我们主要来研究il2cpp.so的逆向，该文件是一个可执行文件，其代码是游戏的C#字节码编译成的原生汇编代码。AOT编译主要是为了优化性能，但同时也增加了逆向难度。</p>
+<p>il2cpp机制将C#中所有的类型信息保存到global-metadata.dat的文件，通过解析global-metadata文件，可以获得C#代码中的类型、方法、字段等等信息。</p>
+<h2 id="il2cppdumper的使用"><a href="#il2cppdumper的使用" class="headerlink" title="il2cppdumper的使用"></a>il2cppdumper的使用</h2><h3 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h3><p>我们可以使用il2cppdumper来获取这些信息，这是一个开源工具，可以在github上下载</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Perfare/Il2CppDumper">https://github.com/Perfare/Il2CppDumper</a></p>
+<p>点击右侧releases下面的版本下载即可</p>
+<p>il2cppdumper-vxxx.zip</p>
+<h2 id="2-获取libil2cpp-so和global-metadata-dat"><a href="#2-获取libil2cpp-so和global-metadata-dat" class="headerlink" title="2.获取libil2cpp.so和global -metadata.dat"></a>2.获取libil2cpp.so和global -metadata.dat</h2><p>将你要逆向的apk（xxx.apk）改为（xxx.zip），解压进入目录，拿到libil2cpp.so与global-metadata.dat，目录为</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\\lib\\armeabi-v7a\\libil2cpp.so</span><br><span class="line">\\assets\\bin\\Data\\Managed\\Metadata\\global-metadata.dat</span><br></pre></td></tr></table></figure>
+
+<h3 id="执行Il2CppDumper-exe"><a href="#执行Il2CppDumper-exe" class="headerlink" title="执行Il2CppDumper.exe"></a>执行Il2CppDumper.exe</h3><p>1.回到<code>Il2CppDumper.exe</code>所在的目录，创建<code>input</code>目录和<code>output</code>目录。</p>
+<p>2.将<code>libil2cpp.so</code>与<code>global-metadata.dat</code>拷贝到<code>input</code>目录中。</p>
+<p>3.创建一个<code>il2cpp_decompilation.bat</code>文件。</p>
+<p><code>il2cpp_decompilation.bat</code>文件内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">..\\Il2CppDumper.exe libil2cpp.so global-metadata.dat ..\\output</span><br></pre></td></tr></table></figure>
+
+<p>双击执行<code>il2cpp_decompilation.bat</code> 页面会弹出一个cmd窗口然后显示一些done就是成功了</p>
+<p>4.进入output目录可以看到生成了相关的cs文件和il2cpp.h文件</p>
+<h3 id="查看反编译后的文件"><a href="#查看反编译后的文件" class="headerlink" title="查看反编译后的文件"></a>查看反编译后的文件</h3><p>1.dump.cs</p>
+<p>这个文件会把<code>C#</code>的<code>dll</code>代码的类、方法、字段列出来。</p>
+<p>2.il2cpp.h</p>
+<p>生成的<code>cpp</code>的头文件，从头文件里我们也可以看到相关的数据结构。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/linxinfa/article/details/116572369">https://blog.csdn.net/linxinfa/article/details/116572369</a></p>
+<h2 id="使用il2cppinspector导出修复il2cpp-so符号的脚本"><a href="#使用il2cppinspector导出修复il2cpp-so符号的脚本" class="headerlink" title="使用il2cppinspector导出修复il2cpp.so符号的脚本"></a>使用il2cppinspector导出修复il2cpp.so符号的脚本</h2><p>Il2CppDumper生成的文件中，其中有一个script.py脚本，在IDA中File-Script file选择script.py运行即可，会重命名methodName，添加stringLiteral注释和MakeFunction。</p>
+<p>但是使用il2cppdumper中并没有生成script.py的脚本，经过查找资料和推测，是使用ida.py来调用script.json</p>
+<p>所以恢复符号的步骤是：</p>
+<p>打开 IDA 中的 <strong>File</strong>- <strong>Script file</strong>，依次选择 Il2CppDumper 安装目录下的 <code>ida_struct...py3</code> 的一个文件（有点不记得名字了）和使用命令导出的 <code>script.json</code>文件。</p>
+<h2 id="frida使用"><a href="#frida使用" class="headerlink" title="frida使用"></a>frida使用</h2><p>frida框架分为两部分：</p>
+<ol>
+<li>一部分是运行在系统上的交互工具frida CLI。</li>
+<li>另一部分是运行在目标机器上的代码注入工具 frida-serve。</li>
+</ol>
+<h4 id="一、Window-安装"><a href="#一、Window-安装" class="headerlink" title="一、Window 安装"></a>一、Window 安装</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install frida</span><br><span class="line">pip install frida-tools</span><br></pre></td></tr></table></figure>
+
+<h4 id="二、安卓安装"><a href="#二、安卓安装" class="headerlink" title="二、安卓安装"></a>二、安卓安装</h4><p>adb 连接后输入以下命令查看CPU型号getprop ro.product.cpu.abi</p>
+<p>然后去<a target="_blank" rel="noopener" href="https://github.com/frida/frida/releases%E4%B8%AD%E4%B8%8B%E8%BD%BD%E5%AF%B9%E5%BA%94%E5%9E%8B%E5%8F%B7%E4%B8%94%E4%B8%8E%E7%94%B5%E8%84%91%E5%AE%89%E8%A3%85Frida%E7%89%88%E6%9C%AC%E4%B8%80%E8%87%B4%E7%9A%84Frida-server%E7%89%88%E6%9C%AC%E3%80%82%E8%BF%99%E9%87%8C%E6%88%91%E4%B8%8B%E8%BD%BD%E7%9A%84%E6%98%AF">https://github.com/frida/frida/releases中下载对应型号且与电脑安装Frida版本一致的Frida-server版本。这里我下载的是</a> frida-server-12.10.4-android-arm64.xz</p>
+<p>下载完成后将其解压出来，然后重命名为frida-server然后通过adb将其上传到手机adb push .\frida-server /data/local/tmp</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb push .\frida-server /data/local/tmp</span><br></pre></td></tr></table></figure>
+
+<h4 id="三、运行frida-server"><a href="#三、运行frida-server" class="headerlink" title="三、运行frida-server"></a>三、运行frida-server</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$adb shell</span><br><span class="line">$su</span><br><span class="line">$cd  /data/local/tmp</span><br><span class="line">$chmod  777  frida-server</span><br><span class="line">$./frida-server </span><br></pre></td></tr></table></figure>
+
+<h4 id="四、转发端口"><a href="#四、转发端口" class="headerlink" title="四、转发端口"></a>四、转发端口</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adb forward tcp:27042 tcp:27042</span><br><span class="line">adb forward tcp:27043 tcp:27043</span><br><span class="line">Frida-ps -U   #检查是否正常</span><br></pre></td></tr></table></figure>
+
+<p>至此，我们在安卓端安装完成。接下来，我们检验是否安装成功，在手机端启动./frida-server然后我们在window上执行Frida-ps -U如下图所示，则表示安装成功</p>
+<p>查看进程名：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">firda-ps -U</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="frida插件"><a href="#frida插件" class="headerlink" title="frida插件"></a>frida插件</h3><p>idafirida插件能够批量生成hook脚本</p>
+<p>选中一部分函数，然后使用该插件</p>
+<p>使用vscode在idafrida.py中搜索open，往下继续，将filename改为xxx.js（自主命名），在目录下就会生成一个js文件，里面会有使用插件生成的代码</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/P4nda0s/IDAFrida">https://github.com/P4nda0s/IDAFrida</a></p>
+<h3 id="hook脚本"><a href="#hook脚本" class="headerlink" title="hook脚本"></a>hook脚本</h3><p>hook native层</p>
+<p>用python封装的hook脚本能重启apk应用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> os <span class="keyword">import</span> device_encoding</span><br><span class="line"><span class="keyword">from</span> ssl <span class="keyword">import</span> SSLSession</span><br><span class="line"><span class="keyword">import</span> frida</span><br><span class="line"><span class="keyword">import</span> sys </span><br><span class="line">device = frida.get_usb_device()</span><br><span class="line">pid = device.spawn([<span class="string">&quot;com.dreamgames.royalmatch&quot;</span>]) <span class="comment">#包名</span></span><br><span class="line">device.resume(pid)</span><br><span class="line">session = device.attach(pid)</span><br><span class="line">script = session.create_script(<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    var str_name_so = &quot;libil2cpp.so&quot;;    //要hook的so名</span></span><br><span class="line"><span class="string">    var n_addr_func_offset = 0x000000;         //要hook的函数在函数里面的偏移</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    //加载到内存后 函数地址 = so地址 + 函数偏移</span></span><br><span class="line"><span class="string">    var n_addr_so = Module.findBaseAddress(str_name_so);</span></span><br><span class="line"><span class="string">    var n_addr_func = parseInt(n_addr_so, 16) + n_addr_func_offset;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    var ptr_func = new NativePointer(n_addr_func);</span></span><br><span class="line"><span class="string">    Interceptor.attach(ptr_func, </span></span><br><span class="line"><span class="string">    &#123;</span></span><br><span class="line"><span class="string">    onEnter: function(args) </span></span><br><span class="line"><span class="string">    &#123;</span></span><br><span class="line"><span class="string">        console.log(&quot;hook on enter no exp&quot;);</span></span><br><span class="line"><span class="string">    &#125;,</span></span><br><span class="line"><span class="string">    onLeave:function(retval)</span></span><br><span class="line"><span class="string">    &#123;</span></span><br><span class="line"><span class="string">        console.log(&quot;hook on Leave no exp&quot;);</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;);</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">on_message</span>(<span class="params">message,data</span>):</span> <span class="comment">#js中执行send函数后要回调的函数</span></span><br><span class="line">    <span class="built_in">print</span>(message)</span><br><span class="line"></span><br><span class="line">script.on(<span class="string">&#x27;message&#x27;</span>,on_message)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;1234&quot;</span>)</span><br><span class="line">script.load()</span><br><span class="line">sys.stdin.read()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#打印栈调用</span></span><br><span class="line">console.log(Thread.backtrace(this.context, Backtracer.FUZZY).<span class="built_in">map</span>(DebugSymbol.fromAddress).join(<span class="string">&#x27;\\n&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这里注意函数的参数FUZZY，一般的搜到的调用都是使用Backtracer.ACCURATE，也是默认参数。但这里打印的不完全，所以还是使用FUZZY比较好。</p>
+<p>打印调用栈的显示的地址是call和ret的地址，而不是函数的地址。</p>
+<h2 id="hook代码写法"><a href="#hook代码写法" class="headerlink" title="hook代码写法"></a>hook代码写法</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cyjmosthandsome/article/details/120906998">https://blog.csdn.net/cyjmosthandsome/article/details/120906998</a></p>
+<p>关于hook代码的写法就放个链接学习，修改返回值什么的，有参考。</p>
+<h2 id="hook-firda"><a href="#hook-firda" class="headerlink" title="hook-firda"></a>hook-firda</h2><p><a target="_blank" rel="noopener" href="https://q0o0p.top/2021/03/23/hook-frida/">https://q0o0p.top/2021/03/23/hook-frida/</a></p>
+<p>这个博客写的也很详细，有参考</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">John Doe</a></p><p> <span>Link:  </span><a href="http://example.com/2022/03/04/Unity3D-Frida-Hook/">http://example.com/2022/03/04/Unity3D-Frida-Hook/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2022/02/18/DLL/" title="演练和使用自己的动态链接库C++"><span>NextPost ></span><br><span class="nextTitle">演练和使用自己的动态链接库C++</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Unity3D-Frida-Hook"><span class="toc-number">1.</span> <span class="toc-text">Unity3D + Frida +Hook</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#il2cppdumper%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.1.</span> <span class="toc-text">il2cppdumper的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85"><span class="toc-number">1.1.1.</span> <span class="toc-text">1. 安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%8E%B7%E5%8F%96libil2cpp-so%E5%92%8Cglobal-metadata-dat"><span class="toc-number">1.2.</span> <span class="toc-text">2.获取libil2cpp.so和global -metadata.dat</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A7%E8%A1%8CIl2CppDumper-exe"><span class="toc-number">1.2.1.</span> <span class="toc-text">执行Il2CppDumper.exe</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%8F%8D%E7%BC%96%E8%AF%91%E5%90%8E%E7%9A%84%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.2.</span> <span class="toc-text">查看反编译后的文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8il2cppinspector%E5%AF%BC%E5%87%BA%E4%BF%AE%E5%A4%8Dil2cpp-so%E7%AC%A6%E5%8F%B7%E7%9A%84%E8%84%9A%E6%9C%AC"><span class="toc-number">1.3.</span> <span class="toc-text">使用il2cppinspector导出修复il2cpp.so符号的脚本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#frida%E4%BD%BF%E7%94%A8"><span class="toc-number">1.4.</span> <span class="toc-text">frida使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81Window-%E5%AE%89%E8%A3%85"><span class="toc-number">1.4.0.1.</span> <span class="toc-text">一、Window 安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E5%8D%93%E5%AE%89%E8%A3%85"><span class="toc-number">1.4.0.2.</span> <span class="toc-text">二、安卓安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%BF%90%E8%A1%8Cfrida-server"><span class="toc-number">1.4.0.3.</span> <span class="toc-text">三、运行frida-server</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%BD%AC%E5%8F%91%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.4.0.4.</span> <span class="toc-text">四、转发端口</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#frida%E6%8F%92%E4%BB%B6"><span class="toc-number">1.4.1.</span> <span class="toc-text">frida插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hook%E8%84%9A%E6%9C%AC"><span class="toc-number">1.4.2.</span> <span class="toc-text">hook脚本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hook%E4%BB%A3%E7%A0%81%E5%86%99%E6%B3%95"><span class="toc-number">1.5.</span> <span class="toc-text">hook代码写法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hook-firda"><span class="toc-number">1.6.</span> <span class="toc-text">hook-firda</span></a></li></ol></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
