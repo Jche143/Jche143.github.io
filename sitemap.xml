@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://example.com/2022/05/11/post%E3%80%8AUnicorn%E7%AE%80%E6%98%93%E4%BD%BF%E7%94%A8%E3%80%8B/</loc>
+    
+    <lastmod>2022-05-11</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://example.com/2022/03/04/Unity3D-Frida-Hook/</loc>
     
     <lastmod>2022-04-07</lastmod>
